@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from .extension import api
 from .resources import population_api
@@ -7,7 +8,10 @@ def create_app():
     app = Flask(__name__)
 
     api.init_app(app)
-    Population.initialize_data('C:\\Users\\Witsa\\Desktop\\job\\python-backend\\app\\pop.csv')
+
+    cur_dir = os.path.dirname(__file__)
+    csv_path = os.path.join(cur_dir, 'pop.csv')
+    Population.initialize_data(csv_path)
 
     api.add_namespace(population_api)
 
