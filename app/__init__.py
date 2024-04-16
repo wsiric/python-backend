@@ -1,7 +1,8 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 from .extension import api
-from .resources import population_api
+from .apis import population_api
 from .models import Population
 
 def create_app():
@@ -14,5 +15,6 @@ def create_app():
     Population.initialize_data(csv_path)
 
     api.add_namespace(population_api)
+    CORS(app, resources={r'/*':{'origins':"*"}})
 
     return app
