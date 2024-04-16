@@ -1,7 +1,7 @@
 # CSV file now act like a database
 
 import pandas as pd
-import pycountry
+import pycountry_convert as pc
 import json
 import os
 
@@ -22,6 +22,7 @@ class Population():
                          "High-income countries",
                          "Asia (UN)",
                          "Europe (UN)",
+                         "Africa (UN)",
                          }
 
     def initialize_data(csv_file):
@@ -36,9 +37,10 @@ class Population():
                 country_name = row['Country name']
                 year = row['Year']
                 population = row['Population']
+                region = Population.country_to_continent(country_name)
 
                 if (country_name not in Population.exclude_countries):
-                    db.setdefault(year, []).append((country_name, population))
+                    db.setdefault(year, []).append((country_name, population, region))
 
             for year, data in db.items():
                 db[year] = sorted(data, key=lambda x: x[1], reverse=True)
@@ -47,3 +49,12 @@ class Population():
                 json.dump(db, fh)
         except Exception as e:
             print(f"Error: {e}")
+
+    def country_to_continent(country_name):
+        try:
+            country_alpha2 = pc.country_name_to_country_alpha2(country_name)
+            country_continent_code = pc.country_alpha2_to_continent_code(country_alpha2)
+            country_continent_name = pc.convert_continent_code_to_continent_name(country_continent_code)
+            return country_continent_name
+        except:
+            return "Unknown"
