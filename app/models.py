@@ -39,12 +39,20 @@ class Population():
                 population = row['Population']
                 region = Population.country_to_continent(country_name)
 
-                if (country_name not in Population.exclude_countries):
-                    db.setdefault(year, []).append((country_name, population, region))
+                if country_name not in Population.exclude_countries:
+                    db.setdefault(region, {}).setdefault(year, []).append((country_name, population))
 
-            for year, data in db.items():
-                db[year] = sorted(data, key=lambda x: x[1], reverse=True)
-                
+            # Sort the data by population for each region and year
+            for region_data in db.values():
+                for year_data in region_data.values():
+                    year_data.sort(key=lambda x: x[1], reverse=True)
+            
+            # Add the sum of population for each year
+            for region_data in db.values():
+                for year, year_data in region_data.items():
+                    population_sum = sum(entry[1] for entry in year_data)
+                    year_data.insert(0, ("Total", population_sum))
+            
             with open("db.json", 'w') as fh:
                 json.dump(db, fh)
         except Exception as e:
